@@ -37,13 +37,20 @@ jobs:
 
     # Docker Hub login
     - name: Login to DockerHub
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
-        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin || {
-          echo "Docker login failed. Checking credentials..."
-          echo "Username exists: ${{ secrets.DOCKERHUB_USERNAME != '' }}"
-          echo "Token exists: ${{ secrets.DOCKERHUB_TOKEN != '' }}"
+        if [ -z "$DOCKER_USERNAME" ]; then
+          echo "DOCKERHUB_USERNAME is not set in GitHub Secrets"
           exit 1
-        }
+        fi
+        if [ -z "$DOCKER_TOKEN" ]; then
+          echo "DOCKERHUB_TOKEN is not set in GitHub Secrets"
+          exit 1
+        fi
+        echo "Using username: $DOCKER_USERNAME"
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_TOKEN"
 
     # Build and push
     - name: Build and push
