@@ -1,0 +1,24 @@
+# 빌드 스테이지
+FROM eclipse-temurin:17-jdk AS builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew build -x test
+
+# 실행 스테이지
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=builder /app/build/libs/demo-0.0.1-SNAPSHOT.jar app.jar
+
+# 로그 디렉토리 생성
+RUN mkdir -p /var/log/app
+ENV LOG_FILE=/var/log/app/application.log
+
+# 실행 스크립트 생성
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'java -jar app.jar > ${LOG_FILE} 2>&1' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+ENV SPRING_PROFILES_ACTIVE=prod
+EXPOSE 8080
+
+ENTRYPOINT ["/app/start.sh"]

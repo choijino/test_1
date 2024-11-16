@@ -1,0 +1,20 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "%DOCKER_IMAGE_NAME%",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8080,
+      "HostPort": 5000
+    }
+  ],
+  "Logging": "/var/log/app",
+  "Volumes": [
+    {
+      "HostDirectory": "/var/app/logs",
+      "ContainerDirectory": "/var/log/app"
+    }
+  ]
+} 
