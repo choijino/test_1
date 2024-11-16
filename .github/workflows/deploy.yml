@@ -49,8 +49,14 @@ jobs:
           echo "DOCKERHUB_TOKEN is not set in GitHub Secrets"
           exit 1
         fi
-        echo "Using username: $DOCKER_USERNAME"
-        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_TOKEN"
+        echo "Attempting Docker login..."
+        echo "$DOCKER_TOKEN" | docker login --username "$DOCKER_USERNAME" --password-stdin || {
+          echo "Docker login failed. Please check your credentials."
+          echo "Username length: ${#DOCKER_USERNAME}"
+          echo "Token length: ${#DOCKER_TOKEN}"
+          echo "First character of username: ${DOCKER_USERNAME:0:1}"
+          exit 1
+        }
 
     # Build and push
     - name: Build and push
